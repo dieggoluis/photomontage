@@ -48,10 +48,10 @@ RM = /home/hfiuza/programs/cmake-3.6.2-Linux-x86_64/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first
+CMAKE_SOURCE_DIR = /home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/build
+CMAKE_BINARY_DIR = /home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/build/CMakeFiles /home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/build/CMakeFiles /home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

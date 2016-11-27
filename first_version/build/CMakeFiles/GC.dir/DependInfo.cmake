@@ -4,10 +4,10 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/graphCuts.cpp" "/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/build/CMakeFiles/GC.dir/graphCuts.cpp.o"
-  "/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/image.cpp" "/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/build/CMakeFiles/GC.dir/image.cpp.o"
-  "/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/maxflow/graph.cpp" "/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/build/CMakeFiles/GC.dir/maxflow/graph.cpp.o"
-  "/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/rectangleOverlap.cpp" "/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/build/CMakeFiles/GC.dir/rectangleOverlap.cpp.o"
+  "/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/graphCuts.cpp" "/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/build/CMakeFiles/GC.dir/graphCuts.cpp.o"
+  "/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/image.cpp" "/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/build/CMakeFiles/GC.dir/image.cpp.o"
+  "/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/maxflow/graph.cpp" "/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/build/CMakeFiles/GC.dir/maxflow/graph.cpp.o"
+  "/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/rectangleOverlap.cpp" "/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/build/CMakeFiles/GC.dir/rectangleOverlap.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

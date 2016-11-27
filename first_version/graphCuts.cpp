@@ -73,6 +73,14 @@ int belongsTo(int i, int j, Image<Vec3b>&I1color, Image<Vec3b>&I2color){
 void do_photomontage(Image<Vec3b>&I1color, Image<Vec3b>&I2color, Point offset1, Point offset2, int type=1, int delta=5){
 	bool right_order1=true, right_order2=true;
 	vector<Rectangle>combined_coordinates = rectangleOverlap(I1color, I2color, offset1, offset2, right_order1, right_order2);
+	/*cout << "type = " << type << endl;
+	if(type==1){
+		if(right_order1) cout << "right order" << endl;
+		else cout << "wrong order, second image comes before" << endl;
+	}else{
+		if(right_order2) cout << "right order" << endl;
+		else cout << "wrong order, second image comes before" << endl;
+	}*/
 
 	Rectangle overlap, rec;
 	if(type==1)
@@ -200,8 +208,8 @@ int main() {
 	I2gray.convertTo(I2,CV_32F);
 
 
-	Point offset1(0,0);
-	Point offset2(0,100);
+	Point offset1(0,85);
+	Point offset2(0,0);
 
 	do_photomontage(I1color, I2color, offset1, offset2, 1, 20);
 	do_photomontage(I1color, I2color, offset1, offset2, 2, 20);

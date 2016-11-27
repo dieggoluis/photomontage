@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/graphCuts.cpp
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/graphCuts.cpp
 opencv2/highgui/highgui.hpp
 -
 iostream
@@ -20,17 +20,17 @@ limits
 string
 -
 maxflow/graph.h
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/maxflow/graph.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/maxflow/graph.h
 image.h
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/image.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/image.h
 rectangleOverlap.h
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/rectangleOverlap.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/rectangleOverlap.h
 
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/image.cpp
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/image.cpp
 image.h
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/image.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/image.h
 
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/image.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/image.h
 vector
 -
 opencv2/imgproc/imgproc.hpp
@@ -38,13 +38,13 @@ opencv2/imgproc/imgproc.hpp
 iostream
 -
 
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/maxflow/block.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/maxflow/block.h
 block.h
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/maxflow/block.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/maxflow/block.h
 stdlib.h
 -
 
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/maxflow/graph.cpp
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/maxflow/graph.cpp
 stdio.h
 -
 stdlib.h
@@ -52,33 +52,33 @@ stdlib.h
 string.h
 -
 graph.h
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/maxflow/graph.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/maxflow/graph.h
 maxflow.inc
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/maxflow/maxflow.inc
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/maxflow/maxflow.inc
 instances.inc
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/maxflow/instances.inc
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/maxflow/instances.inc
 
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/maxflow/graph.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/maxflow/graph.h
 string.h
 -
 block.h
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/maxflow/block.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/maxflow/block.h
 assert.h
 -
 
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/maxflow/instances.inc
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/maxflow/instances.inc
 graph.h
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/maxflow/graph.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/maxflow/graph.h
 
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/maxflow/maxflow.inc
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/maxflow/maxflow.inc
 stdio.h
 -
 graph.h
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/maxflow/graph.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/maxflow/graph.h
 
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/rectangleOverlap.cpp
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/rectangleOverlap.cpp
 rectangleOverlap.h
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/rectangleOverlap.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/rectangleOverlap.h
 opencv2/highgui/highgui.hpp
 -
 iostream
@@ -86,9 +86,9 @@ iostream
 algorithm
 -
 
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/rectangleOverlap.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/rectangleOverlap.h
 image.h
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/project/first/image.h
+/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/image.h
 opencv2/imgproc/imgproc.hpp
 -
 

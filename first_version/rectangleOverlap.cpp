@@ -32,7 +32,7 @@ vector<Rectangle> rectangleOverlap (Image<Vec3b>& I1, Image<Vec3b>& I2, Point of
     r[2].p2 = Point(min((i1.second).x, (i2.second).x), min((i1.second).y, (i2.second).y));
 
     position1 = (r[0].p1).x == (i1.first).x;
-    position2 = (r[0].p1).y == (i1.first).y;
+    position2 = (r[1].p1).y == (i1.first).y;
 
     return r;
 }
