@@ -16,6 +16,6 @@ else()
         message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
-ADD_EXECUTABLE(GC graphCuts.cpp image.cpp rectangleOverlap.cpp maxflow/graph.cpp)
+ADD_EXECUTABLE(FusionMany fusion_many_images.cpp image.cpp rectangleOverlap.cpp maxflow/graph.cpp)
 
-TARGET_LINK_LIBRARIES(GC ${OpenCV_LIBS})
+TARGET_LINK_LIBRARIES(FusionMany ${OpenCV_LIBS})

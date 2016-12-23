@@ -49,7 +49,7 @@ ________|_______________________|_____
 */
 
 
-vector<Rectangle> rectangleOverlap (Image<Vec3b>& I1, Image<Vec3b>& I2, Point offset1, Point offset2, bool& position1, bool& position2) {
+vector<Rectangle> rectangleOverlap (const Image<Vec3b>& I1, const Image<Vec3b>& I2, Point offset1, Point offset2, bool& position1, bool& position2) {
     pair<Point, Point> i1 (Point(offset1), Point(I1.width()+offset1.x, I1.height()+offset1.y));   
     pair<Point, Point> i2 (Point(offset2), Point(I2.width()+offset2.x, I2.height()+offset2.y));   
 
@@ -90,7 +90,7 @@ vector<Rectangle> rectangleOverlap (Image<Vec3b>& I1, Image<Vec3b>& I2, Point of
     else if(i1.first.y > i2.first.y){
         position2=false;
         r[1].p1 = Point(max(i1.first.x, i2.first.x), i2.first.y);
-        r[1].p2 = Point(max(i1.second.x, i2.second.x), i1.second.y);
+        r[1].p2 = Point(min(i1.second.x, i2.second.x), i1.second.y);
     }
     else{ // if i1.first.y == i2.first.y
         if(i1.second.y <= i2.second.y){
@@ -101,7 +101,7 @@ vector<Rectangle> rectangleOverlap (Image<Vec3b>& I1, Image<Vec3b>& I2, Point of
         else{
             position2=false;
             r[1].p1 = Point(max(i1.first.x, i2.first.x), i2.first.y);
-            r[1].p2 = Point(max(i1.second.x, i2.second.x), i1.second.y);
+            r[1].p2 = Point(min(i1.second.x, i2.second.x), i1.second.y);
         }
     }
     //r[1].p1 = Point(max((i1.first).x, (i2.first).x), min((i1.first).y, (i2.first).y));
