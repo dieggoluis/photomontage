@@ -1,3 +1,0 @@
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/build/CMakeFiles/rebuild_cache.dir
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/build/CMakeFiles/edit_cache.dir
-/home/hfiuza/Desktop/Polytechnique/ComputerVision/Photomontage/first_version/build/CMakeFiles/GC.dir

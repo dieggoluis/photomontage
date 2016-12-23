@@ -176,15 +176,18 @@ void do_photomontage(Image<Vec3b>&I1color, Image<Vec3b>&I2color, Point offset1, 
 
 
 	Image<Vec3b> label(rec.p2.x-rec.p1.x,rec.p2.y-rec.p1.y, DataType<Vec3b>::type);
+	Image<float> label2(rec.p2.x-rec.p1.x,rec.p2.y-rec.p1.y, DataType<float>::type);
 	for (int i=rec.p1.x;i<rec.p2.x;i++)
 		for (int j=rec.p1.y;j<rec.p2.y;j++){
 			//cout << "i, j = " << i << " " <<  j << " first image dimensions : from " << rec.p1.x << ", " << rec.p1.y << " to " << rec.p2.x << ", " << rec.p2.y << endl;
 			label(i-rec.p1.x,j-rec.p1.y)= (G.what_segment((i-rec.p1.x)+(j-rec.p1.y)*(rec.p2.x-rec.p1.x)) == Graph<double,double,double>::SOURCE) ? I1color(i-offset1.x,j-offset1.y) : I2color(i-offset2.x,j-offset2.y);
+			label2(i-rec.p1.x,j-rec.p1.y)= (G.what_segment((i-rec.p1.x)+(j-rec.p1.y)*(rec.p2.x-rec.p1.x)) == Graph<double,double,double>::SOURCE) ? 1 : 0;
 		}
 	cout << "ended!" << endl;
 
 	imshow("Rec"+to_string(type),label);
-
+	imshow("BlackAndWhite"+to_string(type),label2);
+	
 
 }
 
@@ -208,7 +211,7 @@ int main() {
 	I2gray.convertTo(I2,CV_32F);
 
 
-	Point offset1(0,85);
+	Point offset1(0,0);
 	Point offset2(0,0);
 
 	do_photomontage(I1color, I2color, offset1, offset2, 1, 20);
