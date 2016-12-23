@@ -50,6 +50,8 @@ void testGCuts()
 }
 
 //computeWeight(i,j,i+1,j,I1color,I2color,offset1,offset2)
+// computes the weight of the edge connecting points (i1,j1) and (i2,j2) in the final image based on their values on coloured images I1 and I2.
+//  
 double computeWeight(int i1, int j1, int i2, int j2, const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, Point& offset1, Point& offset2){
 	Scalar p1I1(I1color(i1-offset1.x,j1-offset1.y));
 	Scalar p1I2(I2color(i1-offset2.x,j1-offset2.y));
@@ -57,18 +59,8 @@ double computeWeight(int i1, int j1, int i2, int j2, const Image<Vec3b>&I1color,
 	Scalar p2I2(I2color(i2-offset2.x,j2-offset2.y));
 	return norm(p1I1, p1I2) + norm(p2I1, p2I2);
 }
-bool belongsTo(int i, int j, Image<Vec3b>&I){
-	return i<I.width() && j<I.height();
-}
 
-int belongsTo(int i, int j, Image<Vec3b>&I1color, Image<Vec3b>&I2color){
-	bool b1 = belongsTo(i,j,I1color);
-	bool b2 = belongsTo(i,j,I2color);
-	if(b1 && b2) return 3;
-	if(b1) return 1;
-	if(b2) return 2;
-	return 0;
-}
+
 
 void do_photomontage(Image<Vec3b>&I1color, Image<Vec3b>&I2color, Point offset1, Point offset2, int type=1, int delta=5){
 	bool right_order1=true, right_order2=true;
@@ -211,7 +203,7 @@ int main() {
 	I2gray.convertTo(I2,CV_32F);
 
 
-	Point offset1(0,0);
+	Point offset1(0,85);
 	Point offset2(0,0);
 
 	do_photomontage(I1color, I2color, offset1, offset2, 1, 20);

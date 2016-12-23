@@ -11,6 +11,44 @@ using namespace std;
 #define debug(x) {cout << #x << " " << x << endl;}
 #endif
 
+
+// returns three rectangles generated from a two translated images
+
+// the first rectangle corresponds to the rectangle with the largest possible width containing points from both images.
+// Its leftest points must belong to one image whereas its rightest points must belong to the other image
+// in the example, it is the retangle with vertices (0,20), (70, 20), (70,50), (0,50)
+
+// the second rectangle corresponds to the rectangle with the largest possible heigth contaning points from both images.
+// Its highest points must belong to one image whereas its rightest points must belong to the other image
+// In the example, it is the rectangle with vertices (20, 0), (70, 0), (70, 60), (20, 60)
+
+// the third rectangle corresponds to the intersection of the two rectangles
+
+// position1 and position2 will contain values true if the leftest/toppest points belong to the first rectangle and
+// false if the rightest/lowest points belong to the second rectangle
+// In the example, it is the rectangle with vertices (20, 20), (70, 20), (70, 50), (20, 50)
+
+/*
+        (20,0)
+        ________________________
+        |                       |
+        |                       |
+(0, 20) |                       |  
+________|_______________________|_____
+|       |                       |     |
+|       |                       |     |
+|       |                       |     |
+|       |                       |     |
+|       |                       |     |
+|       |              (70,50)  |     |
+|       |                       |     |
+|       |_______________________|     |
+|                                     | (90,60)
+|_____________________________________|
+
+*/
+
+
 vector<Rectangle> rectangleOverlap (Image<Vec3b>& I1, Image<Vec3b>& I2, Point offset1, Point offset2, bool& position1, bool& position2) {
     pair<Point, Point> i1 (Point(offset1), Point(I1.width()+offset1.x, I1.height()+offset1.y));   
     pair<Point, Point> i2 (Point(offset2), Point(I2.width()+offset2.x, I2.height()+offset2.y));   
@@ -18,21 +56,61 @@ vector<Rectangle> rectangleOverlap (Image<Vec3b>& I1, Image<Vec3b>& I2, Point of
     vector<Rectangle> r(3);
 
     //first possible image
-    r[0].p1 = Point(min((i1.first).x, (i2.first).x), max((i1.first).y, (i2.first).y));
-    r[0].p2 = Point(max((i1.second).x, (i2.second).x), min((i1.second).y, (i2.second).y));
+    if(i1.first.x < i2.first.x){
+        position1=true;
+        r[0].p1 = Point(i1.first.x, max((i1.first).y, (i2.first).y));
+        r[0].p2 = Point(i2.second.x, min((i1.second).y, (i2.second).y));
+    }
+    else if(i1.first.x > i2.first.x){
+        position1=false;
+        r[0].p1 = Point(i2.first.x, max((i1.first).y, (i2.first).y));
+        r[0].p2 = Point(i1.second.x, min((i1.second).y, (i2.second).y));
+    }
+    else{ // if i1.first.x == i2.first.x
+        if(i1.second.x <= i2.second.x){
+            position1=true;
+            r[0].p1 = Point(i1.first.x, max((i1.first).y, (i2.first).y));
+            r[0].p2 = Point(i2.second.x, min((i1.second).y, (i2.second).y));
+        }
+        else{
+            position1=false;
+            r[0].p1 = Point(i2.first.x, max((i1.first).y, (i2.first).y));
+            r[0].p2 = Point(i1.second.x, min((i1.second).y, (i2.second).y));            
+        }
+    }
+    //r[0].p1 = Point(min((i1.first).x, (i2.first).x), max((i1.first).y, (i2.first).y));
+    //r[0].p2 = Point(max((i1.second).x, (i2.second).x), min((i1.second).y, (i2.second).y));
 
     //second possible image
-    Rectangle r2;
-    r[1].p1 = Point(max((i1.first).x, (i2.first).x), min((i1.first).y, (i2.first).y));
-    r[1].p2 = Point(min((i1.second).x, (i2.second).x), max((i1.second).y, (i2.second).y));
+    if(i1.first.y < i2.first.y){
+        position2=true;
+        r[1].p1 = Point(max(i1.first.x, i2.first.x), i1.first.y);
+        r[1].p2 = Point(min(i1.second.x, i2.second.x), i2.second.y);
+    }
+    else if(i1.first.y > i2.first.y){
+        position2=false;
+        r[1].p1 = Point(max(i1.first.x, i2.first.x), i2.first.y);
+        r[1].p2 = Point(max(i1.second.x, i2.second.x), i1.second.y);
+    }
+    else{ // if i1.first.y == i2.first.y
+        if(i1.second.y <= i2.second.y){
+            position2=true;
+            r[1].p1 = Point(max(i1.first.x, i2.first.x), i1.first.y);
+            r[1].p2 = Point(min(i1.second.x, i2.second.x), i2.second.y);
+        }
+        else{
+            position2=false;
+            r[1].p1 = Point(max(i1.first.x, i2.first.x), i2.first.y);
+            r[1].p2 = Point(max(i1.second.x, i2.second.x), i1.second.y);
+        }
+    }
+    //r[1].p1 = Point(max((i1.first).x, (i2.first).x), min((i1.first).y, (i2.first).y));
+    //r[1].p2 = Point(min((i1.second).x, (i2.second).x), max((i1.second).y, (i2.second).y));
 
-    //overlap triangle
+    //overlap rectangle
     Rectangle r3;
     r[2].p1 = Point(max((i1.first).x, (i2.first).x), max((i1.first).y, (i2.first).y));
     r[2].p2 = Point(min((i1.second).x, (i2.second).x), min((i1.second).y, (i2.second).y));
-
-    position1 = (r[0].p1).x == (i1.first).x;
-    position2 = (r[1].p1).y == (i1.first).y;
 
     return r;
 }
