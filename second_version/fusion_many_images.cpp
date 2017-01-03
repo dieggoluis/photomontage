@@ -153,7 +153,7 @@ void generateImagesFromGraphAndRec(Image<Vec3b>&label, Image<float>&label2, cons
 }
 
 Image<Vec3b> do_photomontage(const Image<Vec3b>&I1color, const Image<Vec3b>&I2color){
-	return I1color;
+	return I2color;
 	/*
 	bool right_order1=true, right_order2=true;
 	vector<Rectangle>combined_coordinates = rectangleOverlap(I1color, I2color, offset1, offset2, right_order1, right_order2);
@@ -177,25 +177,27 @@ Image<Vec3b> do_photomontage(const Image<Vec3b>&I1color, const Image<Vec3b>&I2co
 int main() {
 	testGCuts();
 
-	Image<Vec3b> I1color=imread("../img/family/f1.jpg");
-	Image<Vec3b> I2color=imread("../img/family/f2.jpg");
-	Image<Vec3b> I3color=imread("../img/family/f3.jpg");
-	Image<Vec3b> I4color=imread("../img/family/f4.jpg");
+	Image<Vec3b> I1color=imread("../img/family/small_DSC_0168.JPG");
+	Image<Vec3b> I2color=imread("../img/family/small_DSC_0170.JPG");
+	Image<Vec3b> I3color=imread("../img/family/small_DSC_0173.JPG");
+	Image<Vec3b> I4color=imread("../img/family/small_DSC_0174.JPG");
+	Image<Vec3b> I5color=imread("../img/family/small_DSC_0176.JPG");
 
-	imshow("I1",I1color);
-	waitKey();
-	imshow("I2",I2color);
-	waitKey();
-	imshow("I3",I1color);
-	waitKey();
-	imshow("I4",I2color);
-	waitKey();
+	//imshow("I1",I1color);
+	//waitKey();
+	//imshow("I2",I2color);
+	//waitKey();
+	//imshow("I3",I1color);
+	//waitKey();
+	//imshow("I4",I2color);
+	//waitKey();
 
-	vector<Image<Vec3b> > vI{I2color, I3color, I4color};
+	vector<Image<Vec3b> > vI{I2color, I3color, I4color, I5color};
 	Image<Vec3b> curI = I1color;
 	int count=0;
+	cout << "ji" << endl;
 	for (auto Icolor : vI){
-		curI = do_photomontage(curI, I1color);
+		curI = do_photomontage(curI, Icolor);
 		imshow("cur"+to_string(count), curI);
 		waitKey();
 		count++;
