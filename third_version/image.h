@@ -16,7 +16,7 @@ public:
 	// Accessors
 	inline T operator()(int x,int y) const { 
 		if(x<0 || x>=cols || y<0 || y>=rows)
-			cout << "point " << y << ", " << x << endl;
+			cout << "point " << y << ", " << x << ", rows="<<rows<<", cols="<<cols<< endl;
 		return at<T>(y,x); }
 	inline T& operator()(int x,int y) { return at<T>(y,x); }
 	inline T operator()(const Point& p) const { return at<T>(p.y,p.x); }

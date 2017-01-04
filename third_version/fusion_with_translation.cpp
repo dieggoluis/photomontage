@@ -49,19 +49,88 @@ void testGCuts()
 		else
 			cout << i << " is in the SINK set" << endl;
 }
+Image<float> computeGradient(const Image<Vec3b>& J)
+{
+	int m = J.width(), n = J.height();
+	Image<float> I(m,n,CV_32F);
+	cvtColor(J,I,CV_BGR2GRAY);
+	Image<float> Ix(m,n,CV_32F);
+	Image<float> Iy(m,n,CV_32F);
+	Image<float> G(m,n,CV_32F);
+	for (int i=0;i<m;i++) {
+		for (int j=0;j<n;j++){
+			long double ix,iy;
+			if (i==0 || i==m-1 || j==0 || j==n-1){
+				ix=0;
+				iy=0;
+			}
+			else{
+				ix = I(i+1,j+1) + I(i-1,j+1) + 2* I(i,j+1) - I(i-1,j-1) - I(i-1,j+1) - I(i-1,j) - 2*I(i-1,j);
+				ix/=8;
+				iy = I(i+1,j+1) + I(i+1,j-1) + 2* I(i+1,j) - I(i-1,j-1) - I(i+1,j-1) - I(i,j-1) - 2*I(i,j-1);
+				iy/=8;
+			}
+			Ix(i,j)=ix;
+			Iy(i,j)=iy;
+			G(i,j)=sqrt(ix*ix+iy*iy);
+			if(G(i,j)>=INF-1)
+				G(i,j)=INF;
+			//if(i==1 && j==106)
+				//cout << "I,Ix,Iy,G="<<I(i,j)<<","<<Ix(i,j)<<","<<Iy(i,j)<<","<<G(i,j)<<endl;
+		}
+	}	
+	return G;
+}
 
-//computeWeight(i,j,i+1,j,I1color,I2color,offset1,offset2)
+
+
+// computeWeight(i,j,i+1,j,lambda,max_lambda,I1color,I2color,G1,G2offset1,offset2)
 // computes the weight of the edge connecting points (i1,j1) and (i2,j2) in the final image based on their values on coloured images I1 and I2.
-//  
-double computeWeight(int i1, int j1, int i2, int j2, const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, Point& offset1, Point& offset2){
+// Consists of a weighted sum of a norm computed using the BGR matrices and a norm computed the matrices of gradients. 
+double computeBGRWeight(int i1, int j1, int i2, int j2, const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, Point& offset1, Point& offset2){
 	Scalar p1I1(I1color(i1-offset1.x,j1-offset1.y));
 	Scalar p1I2(I2color(i1-offset2.x,j1-offset2.y));
 	Scalar p2I1(I1color(i2-offset1.x,j2-offset1.y));
 	Scalar p2I2(I2color(i2-offset2.x,j2-offset2.y));
 	return norm(p1I1, p1I2) + norm(p2I1, p2I2);
 }
+double computeGradientWeight(int i1, int j1, int i2, int j2, const Image<float>&G1, const Image<float>&G2, Point& offset1, Point& offset2){
+	double p1I1 = G1(i1-offset1.x,j1-offset1.y);
+	double p1I2 = G2(i1-offset2.x,j1-offset2.y);
+	double p2I1 = G1(i2-offset1.x,j2-offset1.y);
+	double p2I2 = G2(i2-offset2.x,j2-offset2.y);
+	//cout << "i1,j1,i2,j2="<<i1<<","<<j1<<","<<i2<<","<<j2<<endl;
+	//cout << "offset1"<<offset1<<",offset2"<<offset2<<endl;
+	//cout << p1I1<<","<<p1I2<<","<<p2I1<<","<<p2I2<<endl;
+	return abs(p1I1-p1I2) + abs(p2I1-p2I2);	
+}
+double computeWeight(int i1, int j1, int i2, int j2, int lambda, int max_lambda, const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, const Image<float>&G1, const Image<float>&G2, Point& offset1, Point& offset2){
+	double c1 = computeBGRWeight(i1,j1,i2,j2,I1color,I2color,offset1,offset2);
+	double c2 = computeGradientWeight(i1,j1,i2,j2,G1,G2,offset1,offset2);
+	if(c1>INF || c1<0) c1=INF;
+	if(c2>INF || c2<0) c2=INF;
+	//cout << "c1="<<c1<<",c2="<<c2<<endl;
+	if(max_lambda==0){
+		cout << "max_lambda was set to 0, but was supposed to be constant and greater than zero." << endl;
+		return 0;
+	}
+	double weight;
+	if(lambda==0) weight=c1;
+	else if(lambda==max_lambda) weight=c2;
+	else if(c1>=INF-1||c2>=INF-1)
+		weight=INF;
+	else{
+		weight=( (max_lambda-lambda)*c1 + lambda*c2 )/max_lambda;
+		if(weight>=INF-1)
+			weight=INF;
+	}
+	//cout <<"c1,c2="<<c1<<","<<c2<<endl;
+	//cout << "weight="<<weight<<endl; 
+	//cout << weight << endl;
+	return weight;
+}
 
-Graph<double,double,double>createGraphFromRectangle(const Rectangle& rec, const Rectangle& overlap, bool right_order1, bool right_order2, const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, Point offset1, Point offset2, int type, int delta){
+Graph<double,double,double>createGraphFromRectangle(const Rectangle& rec, const Rectangle& overlap, bool right_order1, bool right_order2, const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, const Image<float>&G1, const Image<float>&G2, Point offset1, Point offset2, int type, int delta, int lambda, int max_lambda){
 	Graph<double,double,double> G((rec.p2.x-rec.p1.x)*(rec.p2.y-rec.p1.y),2*(rec.p2.x-rec.p1.x)*(rec.p2.y-rec.p1.y));
 	G.add_node((rec.p2.x-rec.p1.x)*(rec.p2.y-rec.p1.y));
 	for(int i=rec.p1.x; i<rec.p2.x; i++){
@@ -70,11 +139,10 @@ Graph<double,double,double>createGraphFromRectangle(const Rectangle& rec, const 
 			if(i>=overlap.p1.x && i<overlap.p2.x && j>=overlap.p1.y && j<overlap.p2.y){
 				// we add edges between adjacent points
 				if(i<overlap.p2.x-1)
-					G.add_edge((i-rec.p1.x)+(j-rec.p1.y)*(rec.p2.x-rec.p1.x), (i+1-rec.p1.x)+(j-rec.p1.y)*(rec.p2.x-rec.p1.x), computeWeight(i,j,i+1,j,I1color,I2color,offset1,offset2), computeWeight(i,j,i+1,j,I1color,I2color,offset1,offset2));
+					G.add_edge((i-rec.p1.x)+(j-rec.p1.y)*(rec.p2.x-rec.p1.x), (i+1-rec.p1.x)+(j-rec.p1.y)*(rec.p2.x-rec.p1.x), computeWeight(i,j,i+1,j,lambda,max_lambda,I1color,I2color,G1,G2,offset1,offset2), computeWeight(i,j,i+1,j,lambda,max_lambda,I1color,I2color, G1, G2, offset1,offset2));
 				// we add edges between adjacent points
 				if(j<overlap.p2.y-1)
-					G.add_edge((i-rec.p1.x)+(j-rec.p1.y)*(rec.p2.x-rec.p1.x), (i-rec.p1.x)+(j+1-rec.p1.y)*(rec.p2.x-rec.p1.x), computeWeight(i,j,i,j+1,I1color,I2color,offset1,offset2), computeWeight(i,j,i,j+1,I1color,I2color,offset1,offset2));
-
+					G.add_edge((i-rec.p1.x)+(j-rec.p1.y)*(rec.p2.x-rec.p1.x), (i-rec.p1.x)+(j+1-rec.p1.y)*(rec.p2.x-rec.p1.x), computeWeight(i,j,i,j+1,lambda,max_lambda,I1color,I2color,G1,G2,offset1,offset2), computeWeight(i,j,i,j+1,lambda,max_lambda,I1color,I2color, G1, G2, offset1,offset2));
 				// we assign points close to the border to the image they are the closest
 				if(type==1 && i<overlap.p1.x+delta){
 					if(right_order1)
@@ -143,7 +211,7 @@ void selectRectangles(const vector<Rectangle>&combined_coordinates, Rectangle& r
 	overlap = combined_coordinates[2]; // overlapped rectangle
 }
 
-void generateImagesFromGraphAndRec(Image<Vec3b>&label, Image<float>&label2, const Graph<double,double,double>&G, const Rectangle& rec, const Rectangle& overlap, bool right_order1, bool right_order2, const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, Point offset1, Point offset2, int type, int delta){
+void generateImagesFromGraphAndRec(Image<Vec3b>&label, Image<float>&label2, const Graph<double,double,double>&G, const Rectangle& rec, const Rectangle& overlap, bool right_order1, bool right_order2, const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, Point offset1, Point offset2, int type, int delta, int lambda){
 	for (int i=rec.p1.x;i<rec.p2.x;i++)
 		for (int j=rec.p1.y;j<rec.p2.y;j++){
 			//cout << "i, j = " << i << " " <<  j << " first image dimensions : from " << rec.p1.x << ", " << rec.p1.y << " to " << rec.p2.x << ", " << rec.p2.y << endl;
@@ -152,34 +220,25 @@ void generateImagesFromGraphAndRec(Image<Vec3b>&label, Image<float>&label2, cons
 		}
 }
 
-Mat mergeTwoImages(const Image<Vec3b>& image1, const Image<Vec3b>& image2){
-  int dstWidth = image1.cols;
-  int dstHeight = image1.rows * 2;
-
-  Mat dst = Mat(dstHeight, dstWidth, CV_8UC3, cv::Scalar(0,0,0));
-  Rect roi(Rect(0,0,image1.cols, image1.rows));
-  Mat targetROI = dst(roi);
-  image1.copyTo(targetROI);
-  targetROI = dst(Rect(0,image1.rows,image1.cols, image1.rows));
-  image2.copyTo(targetROI);
-  return dst;
-}
 
 
-void do_photomontage(const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, Point offset1, Point offset2, int type=1, int delta=5, bool showCut=false){
+void do_photomontage(const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, Point offset1, Point offset2, int type=1, int delta=5, bool showCut=false, int lambda=0, int max_lambda=10){
 	type++;
 	bool right_order1=true, right_order2=true;	
 	vector<Rectangle>combined_coordinates = rectangleOverlap(I1color, I2color, offset1, offset2, right_order1, right_order2);
 	Rectangle overlap, rec;
 	selectRectangles(combined_coordinates, rec, overlap, type);
 	
-	Graph<double,double,double> G = createGraphFromRectangle(rec, overlap, right_order1, right_order2, I1color, I2color, offset1, offset2, type, delta);
+	Image<float>G1 = computeGradient(I1color);
+	Image<float>G2 = computeGradient(I2color);
+	
+	Graph<double,double,double> G = createGraphFromRectangle(rec, overlap, right_order1, right_order2, I1color, I2color, G1, G2, offset1, offset2, type, delta, lambda, max_lambda);
 	
 	double flow=G.maxflow();
 
 	Image<Vec3b> label(rec.p2.x-rec.p1.x,rec.p2.y-rec.p1.y, DataType<Vec3b>::type);
 	Image<float> label2(rec.p2.x-rec.p1.x,rec.p2.y-rec.p1.y, DataType<float>::type);
-	generateImagesFromGraphAndRec(label, label2, G, rec, overlap, right_order1, right_order2, I1color, I2color, offset1, offset2, type, delta);
+	generateImagesFromGraphAndRec(label, label2, G, rec, overlap, right_order1, right_order2, I1color, I2color, offset1, offset2, type, delta,lambda);
 
 	//imshow("Rec"+to_string(type),label);
 	//imshow("BlackAndWhite"+to_string(type),label2);
@@ -197,13 +256,13 @@ void do_photomontage(const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, Poi
 	I1color, I2color, x1, y1, x2, y2, delta
 */
 
-int x_1, y_1, x_2, y_2, delta;
+int x_1, y_1, x_2, y_2, delta, lambda, max_lambda;
 int type, showCut;
 Image<Vec3b> I1color;
 Image<Vec3b> I2color;
 
 void do_pmtg_trackbar(int, void *){
-	do_photomontage(I1color, I2color, Point(x_1,y_1), Point(x_2,y_2), type, delta, showCut==1);
+	do_photomontage(I1color, I2color, Point(x_1,y_1), Point(x_2,y_2), type, delta, showCut==1, lambda);
 }
 
 int main() {
@@ -224,6 +283,9 @@ int main() {
 	type=1;
 	delta=20;
 	showCut=0;
+	lambda=0;
+	max_lambda=10;
+	
 	namedWindow("mywindow", WINDOW_AUTOSIZE);
 	createTrackbar("Offset x_1", "mywindow", &x_1, 200, do_pmtg_trackbar);
 	createTrackbar("Offset y_1", "mywindow", &y_1, 200, do_pmtg_trackbar);
@@ -231,11 +293,12 @@ int main() {
 	createTrackbar("Offset y_2", "mywindow", &y_2, 200, do_pmtg_trackbar);
 	createTrackbar("Delta", "mywindow", &delta, 200, do_pmtg_trackbar);
 	createTrackbar("Type", "mywindow", &type, 1, do_pmtg_trackbar);
-	createTrackbar("Image or cut", "mywindow", &showCut, 1, do_pmtg_trackbar);
+	createTrackbar("Image/cut", "mywindow", &showCut, 1, do_pmtg_trackbar);
+	createTrackbar("Pixels/gradient", "mywindow", &lambda, max_lambda, do_pmtg_trackbar);
 
  
 	//do_photomontage(I1color, I2color, offset1, offset2, 1, 20);
-	do_photomontage(I1color, I2color, Point(x_1,y_1), Point(x_2,y_2), 1, delta);
+	do_photomontage(I1color, I2color, Point(x_1,y_1), Point(x_2,y_2), 1, delta,false,lambda);
 	waitKey();
 
 	return 0;
