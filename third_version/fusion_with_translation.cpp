@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <limits>
 #include <string>
+#include <stdlib.h>
 
 #include "maxflow/graph.h"
 #include "image.h"
@@ -49,37 +50,55 @@ void testGCuts()
 		else
 			cout << i << " is in the SINK set" << endl;
 }
-Image<float> computeGradient(const Image<Vec3b>& J)
+void computeGradient(const Image<Vec3b>& J_0, Image<float>& G, bool blur_image)
 {
-	int m = J.width(), n = J.height();
-	Image<float> I(m,n,CV_32F);
-	cvtColor(J,I,CV_BGR2GRAY);
-	Image<float> Ix(m,n,CV_32F);
-	Image<float> Iy(m,n,CV_32F);
-	Image<float> G(m,n,CV_32F);
-	for (int i=0;i<m;i++) {
-		for (int j=0;j<n;j++){
-			long double ix,iy;
-			if (i==0 || i==m-1 || j==0 || j==n-1){
-				ix=0;
-				iy=0;
-			}
-			else{
-				ix = I(i+1,j+1) + I(i-1,j+1) + 2* I(i,j+1) - I(i-1,j-1) - I(i-1,j+1) - I(i-1,j) - 2*I(i-1,j);
-				ix/=8;
-				iy = I(i+1,j+1) + I(i+1,j-1) + 2* I(i+1,j) - I(i-1,j-1) - I(i+1,j-1) - I(i,j-1) - 2*I(i,j-1);
-				iy/=8;
-			}
-			Ix(i,j)=ix;
-			Iy(i,j)=iy;
-			G(i,j)=sqrt(ix*ix+iy*iy);
-			if(G(i,j)>=INF-1)
-				G(i,j)=INF;
-			//if(i==1 && j==106)
-				//cout << "I,Ix,Iy,G="<<I(i,j)<<","<<Ix(i,j)<<","<<Iy(i,j)<<","<<G(i,j)<<endl;
-		}
-	}	
-	return G;
+	int m = J_0.width(), n = J_0.height();
+
+	Mat J;
+	if(blur_image)
+		GaussianBlur( J_0, J, Size(3,3), 0, 0, BORDER_DEFAULT );
+	else
+		J = J_0;
+	cout << "did bluring" << endl;
+	Image<float> I_0(m,n,CV_32F);
+	cvtColor(J,I_0,CV_BGR2GRAY);
+	cout << "did conversion" << endl;
+	int scale = 1;
+  int delta = 0;
+	int ddepth = CV_16S;
+  /// Generate grad_x and grad_y
+  Mat grad, grad_x, grad_y;
+  Mat abs_grad_x, abs_grad_y;
+
+  /// Gradient X
+  //Scharr( I_0, grad_x, ddepth, 1, 0, scale, delta, BORDER_DEFAULT );
+  Sobel(I_0, grad_x, ddepth, 1, 0, 3, scale, delta, BORDER_DEFAULT );
+  convertScaleAbs( grad_x, abs_grad_x );
+  cout << "gradient x" << endl;
+  /// Gradient Y
+  //Scharr( I_0, grad_y, ddepth, 0, 1, scale, delta, BORDER_DEFAULT );
+  Sobel( I_0, grad_y, ddepth, 0, 1, 3, scale, delta, BORDER_DEFAULT );
+  convertScaleAbs( grad_y, abs_grad_y );
+  cout << "gradient y" << endl;
+  /// Total Gradient (approximate)
+  addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad );
+  cout << "gradient" << endl;
+  for(int i=0; i<m; i++)
+  	for(int j=0; j<n; j++){
+  		//cout << "i,j="<<i<<","<<j<<", m,n="<<m<<","<<n<<endl;
+  		if(isnan(grad.at<float>(j,i)))
+  			G(i,j)=0;
+  		else
+  			G(i,j)=grad.at<float>(j,i);
+  	}
+	cout << "end" << endl;  	
+
+	//cout << "gradx at 1,99: " << abs_grad_x.at<float>(1,99) << endl;
+	//cout << "grady at 1,99: " << abs_grad_y.at<float>(1,99) << endl;
+  //cout << "gradient at 1,99: " << G(1,99) << endl;
+
+  //imshow("gradient matrix", grad);
+  //waitKey();
 }
 
 
@@ -112,6 +131,7 @@ double computeWeight(int i1, int j1, int i2, int j2, int lambda, int max_lambda,
 	//cout << "c1="<<c1<<",c2="<<c2<<endl;
 	if(max_lambda==0){
 		cout << "max_lambda was set to 0, but was supposed to be constant and greater than zero." << endl;
+		system("pause");
 		return 0;
 	}
 	double weight;
@@ -131,8 +151,10 @@ double computeWeight(int i1, int j1, int i2, int j2, int lambda, int max_lambda,
 }
 
 Graph<double,double,double>createGraphFromRectangle(const Rectangle& rec, const Rectangle& overlap, bool right_order1, bool right_order2, const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, const Image<float>&G1, const Image<float>&G2, Point offset1, Point offset2, int type, int delta, int lambda, int max_lambda){
+	cout << "lets go" << endl;
 	Graph<double,double,double> G((rec.p2.x-rec.p1.x)*(rec.p2.y-rec.p1.y),2*(rec.p2.x-rec.p1.x)*(rec.p2.y-rec.p1.y));
 	G.add_node((rec.p2.x-rec.p1.x)*(rec.p2.y-rec.p1.y));
+	cout << "go" << endl;
 	for(int i=rec.p1.x; i<rec.p2.x; i++){
 		for(int j=rec.p1.y; j<rec.p2.y; j++){
 			// if we are analyzing a point in the intersection region
@@ -222,26 +244,28 @@ void generateImagesFromGraphAndRec(Image<Vec3b>&label, Image<float>&label2, cons
 
 
 
-void do_photomontage(const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, Point offset1, Point offset2, int type=1, int delta=5, bool showCut=false, int lambda=0, int max_lambda=10){
+void do_photomontage(const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, Point offset1, Point offset2, int type=1, int delta=5, bool showCut=false, int lambda=0, int max_lambda=10, bool blur_image=true){
 	type++;
 	bool right_order1=true, right_order2=true;	
 	vector<Rectangle>combined_coordinates = rectangleOverlap(I1color, I2color, offset1, offset2, right_order1, right_order2);
 	Rectangle overlap, rec;
 	selectRectangles(combined_coordinates, rec, overlap, type);
-	
-	Image<float>G1 = computeGradient(I1color);
-	Image<float>G2 = computeGradient(I2color);
-	
+	cout << "heyhey"<<endl;
+	Image<float>G1(I1color.width(), I1color.height(), CV_32F);
+	computeGradient(I1color, G1, blur_image);
+	cout << "computed first gradient" << endl;
+	Image<float>G2(I2color.width(), I2color.height(), CV_32F);
+	computeGradient(I2color, G2, blur_image);
+	cout << "computed second gradient" << endl;
 	Graph<double,double,double> G = createGraphFromRectangle(rec, overlap, right_order1, right_order2, I1color, I2color, G1, G2, offset1, offset2, type, delta, lambda, max_lambda);
-	
+	cout << "computed graph" << endl;	
 	double flow=G.maxflow();
+	cout << "computed flow: " << flow << endl;
 
 	Image<Vec3b> label(rec.p2.x-rec.p1.x,rec.p2.y-rec.p1.y, DataType<Vec3b>::type);
 	Image<float> label2(rec.p2.x-rec.p1.x,rec.p2.y-rec.p1.y, DataType<float>::type);
 	generateImagesFromGraphAndRec(label, label2, G, rec, overlap, right_order1, right_order2, I1color, I2color, offset1, offset2, type, delta,lambda);
-
-	//imshow("Rec"+to_string(type),label);
-	//imshow("BlackAndWhite"+to_string(type),label2);
+	cout << "generated images" << endl;
 	if(showCut){
 		imshow("mywindow", label2);
 		waitKey();
@@ -256,13 +280,14 @@ void do_photomontage(const Image<Vec3b>&I1color, const Image<Vec3b>&I2color, Poi
 	I1color, I2color, x1, y1, x2, y2, delta
 */
 
-int x_1, y_1, x_2, y_2, delta, lambda, max_lambda;
-int type, showCut;
+int x_1, y_1, x_2, y_2, Delta, Lambda;
+const int max_lambda=10;
+int Type, ShowCut, Blur_image;
 Image<Vec3b> I1color;
 Image<Vec3b> I2color;
 
 void do_pmtg_trackbar(int, void *){
-	do_photomontage(I1color, I2color, Point(x_1,y_1), Point(x_2,y_2), type, delta, showCut==1, lambda);
+	do_photomontage(I1color, I2color, Point(x_1,y_1), Point(x_2,y_2), Type, Delta, ShowCut==1, Lambda, max_lambda, Blur_image);
 }
 
 int main() {
@@ -273,32 +298,27 @@ int main() {
 
 	I1color=imread("../img/Raft.jpg");
 	I2color=imread("../img/LittleRiver.jpg");
-	//imshow("I1",I1color);
-	//waitKey();
-	//imshow("I2",I2color);
-	//waitKey();
 
 	x_1=x_2=y_2=0;
 	y_1=85;
-	type=1;
-	delta=20;
-	showCut=0;
-	lambda=0;
-	max_lambda=10;
-	
+	Type=1;
+	Delta=20;
+	ShowCut=0;
+	Lambda=0;
+	Blur_image=0;	
 	namedWindow("mywindow", WINDOW_AUTOSIZE);
 	createTrackbar("Offset x_1", "mywindow", &x_1, 200, do_pmtg_trackbar);
 	createTrackbar("Offset y_1", "mywindow", &y_1, 200, do_pmtg_trackbar);
 	createTrackbar("Offset x_2", "mywindow", &x_2, 200, do_pmtg_trackbar);
 	createTrackbar("Offset y_2", "mywindow", &y_2, 200, do_pmtg_trackbar);
-	createTrackbar("Delta", "mywindow", &delta, 200, do_pmtg_trackbar);
-	createTrackbar("Type", "mywindow", &type, 1, do_pmtg_trackbar);
-	createTrackbar("Image/cut", "mywindow", &showCut, 1, do_pmtg_trackbar);
-	createTrackbar("Pixels/gradient", "mywindow", &lambda, max_lambda, do_pmtg_trackbar);
-
+	createTrackbar("Delta", "mywindow", &Delta, 200, do_pmtg_trackbar);
+	createTrackbar("Type", "mywindow", &Type, 1, do_pmtg_trackbar);
+	createTrackbar("Image/cut", "mywindow", &ShowCut, 1, do_pmtg_trackbar);
+	createTrackbar("Pixels/gradient", "mywindow", &Lambda, max_lambda, do_pmtg_trackbar);
+	createTrackbar("Blur image", "mywindow", &Blur_image, 1, do_pmtg_trackbar);
  
 	//do_photomontage(I1color, I2color, offset1, offset2, 1, 20);
-	do_photomontage(I1color, I2color, Point(x_1,y_1), Point(x_2,y_2), 1, delta,false,lambda);
+	do_photomontage(I1color, I2color, Point(x_1,y_1), Point(x_2,y_2), 1, Delta,false,Lambda,max_lambda,true);
 	waitKey();
 
 	return 0;
