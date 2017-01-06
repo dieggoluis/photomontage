@@ -4,8 +4,7 @@
 #include <fstream>
 #include <algorithm>
 #include <limits>
-#include <string>
-#include <stdlib.h>
+#include <string> #include <stdlib.h>
 
 #include "maxflow/graph.h"
 #include "image.h"
@@ -272,28 +271,30 @@ void do_pmtg_trackbar(int, void *){
             I1color = image_montage;
             I2color = image_montage;
             x_1=x_2=y_2=y_1=0;
-            //do_photomontage(I1color, I2color, Point(x_1,y_1), Point(x_2,y_2), Type, Delta, ShowCut==1, Lambda, max_lambda, Blur_image);
-            cout << "Mudou" << Type << endl;
             pv_type = Type;
-            cout << I1color.width() << endl;
-            cout << I1color.height() << endl;
         } else {
-            cout << I1color.width() << endl;
-            cout << I1color.height() << endl;
             do_photomontage(I1color, I2color, Point(x_1,y_1), Point(x_2,y_2), Type, Delta, ShowCut==1, Lambda, max_lambda, Blur_image);
         }
     }
 }
 
 int main (int argc, char** argv) {
-    if( argc != 3)
+
+    if( argc < 2)
     {
         cout <<" Usage: Fusion image1 image2" << endl;
         return -1;
     }
 
+    // two images
     I1color = imread(argv[1]);
-    I2color = imread(argv[2]);
+    if (argc < 3) {
+        texture = 1;
+        I2color = imread(argv[1]);
+    } else {
+        texture = 0;
+        I2color = imread(argv[2]);
+    }
 
     //I1color=imread("../img/bottles.jpg");
     //I2color=imread("../img/bottles.jpg");
@@ -306,15 +307,14 @@ int main (int argc, char** argv) {
     
     x_1=x_2=y_2=0;
 
-    //y_1=85;
-    y_1=0;
+    y_1=I2color.height();
+    //y_1=0;
     Type=1;
     pv_type = Type;
     Delta=20;
     ShowCut=0;
     Lambda=0;
     Blur_image=0;	
-    texture = 1;
     namedWindow("mywindow", WINDOW_AUTOSIZE);
     createTrackbar("Offset x_1", "mywindow", &x_1, 200, do_pmtg_trackbar);
     createTrackbar("Offset y_1", "mywindow", &y_1, 200, do_pmtg_trackbar);
@@ -325,7 +325,6 @@ int main (int argc, char** argv) {
     createTrackbar("Image/cut", "mywindow", &ShowCut, 1, do_pmtg_trackbar);
     createTrackbar("Pixels/gradient", "mywindow", &Lambda, max_lambda, do_pmtg_trackbar);
     createTrackbar("Blur image", "mywindow", &Blur_image, 1, do_pmtg_trackbar);
-    createTrackbar("Texture", "mywindow", &texture, 1, do_pmtg_trackbar);
 
     do_photomontage(I1color, I2color, Point(x_1,y_1), Point(x_2,y_2), 1, Delta,false,Lambda,max_lambda,true);
     waitKey();
