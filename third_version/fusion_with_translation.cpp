@@ -4,7 +4,8 @@
 #include <fstream>
 #include <algorithm>
 #include <limits>
-#include <string> #include <stdlib.h>
+#include <string> 
+#include <stdlib.h>
 
 #include "maxflow/graph.h"
 #include "image.h"
@@ -286,29 +287,19 @@ int main (int argc, char** argv) {
         return -1;
     }
 
-    // two images
     I1color = imread(argv[1]);
     if (argc < 3) {
         texture = 1;
         I2color = imread(argv[1]);
+        image_montage = I1color;
     } else {
         texture = 0;
         I2color = imread(argv[2]);
     }
-
-    //I1color=imread("../img/bottles.jpg");
-    //I2color=imread("../img/bottles.jpg");
-    //I1color=imread("../img/bottles.jpg");
-    //I2color=imread("../img/bottles.jpg");
-    //I1color=imread("../img/hut.jpg");
-    //I2color=imread("../img/mountain.jpg");
-    
-    image_montage = I1color;
     
     x_1=x_2=y_2=0;
 
     y_1=I2color.height();
-    //y_1=0;
     Type=1;
     pv_type = Type;
     Delta=20;
@@ -316,11 +307,11 @@ int main (int argc, char** argv) {
     Lambda=0;
     Blur_image=0;	
     namedWindow("mywindow", WINDOW_AUTOSIZE);
-    createTrackbar("Offset x_1", "mywindow", &x_1, 200, do_pmtg_trackbar);
-    createTrackbar("Offset y_1", "mywindow", &y_1, 200, do_pmtg_trackbar);
-    createTrackbar("Offset x_2", "mywindow", &x_2, 200, do_pmtg_trackbar);
-    createTrackbar("Offset y_2", "mywindow", &y_2, 200, do_pmtg_trackbar);
-    createTrackbar("Delta", "mywindow", &Delta, 200, do_pmtg_trackbar);
+    createTrackbar("Offset x_1", "mywindow", &x_1, I2color.height(), do_pmtg_trackbar);
+    createTrackbar("Offset y_1", "mywindow", &y_1, I2color.height(), do_pmtg_trackbar);
+    createTrackbar("Offset x_2", "mywindow", &x_2, I2color.height(), do_pmtg_trackbar);
+    createTrackbar("Offset y_2", "mywindow", &y_2, I2color.height(), do_pmtg_trackbar);
+    createTrackbar("Delta", "mywindow", &Delta, I2color.height(), do_pmtg_trackbar);
     createTrackbar("Type", "mywindow", &Type, 1, do_pmtg_trackbar);
     createTrackbar("Image/cut", "mywindow", &ShowCut, 1, do_pmtg_trackbar);
     createTrackbar("Pixels/gradient", "mywindow", &Lambda, max_lambda, do_pmtg_trackbar);
